@@ -63,6 +63,7 @@ const formatResponse = async ({ name, time, inTime, results }) => {
 // Main functions
 
 const getMainResult = async () => {
+const getCharCounts = async () => {
   const start = Date.now();
   const lCount = await fetchInformation('location', 'l');
   const eCount = await fetchInformation('episode', 'e');
@@ -105,5 +106,6 @@ const getCharactersLocationPerEpisode = async () => {
 
 module.exports = {
   getMainResult,
+  getCharCounts,
   getCharactersLocationPerEpisode,
 };

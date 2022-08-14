@@ -1,4 +1,5 @@
 const axios = require('axios').default
+const { response } = require('express')
 const timeFunc = require('../utils/timeFunctions')
 
 const getMainResult = async () => {
@@ -63,6 +64,45 @@ const formatCharCounter = ({ lCount, eCount, cCount, time, inTime }) => {
       };
 }
 
+const formatLocationPerEpisode = async ({ time, inTime, results }) => {
+    return {
+      exercise_name: 'Episode locations',
+      time,
+      in_time: inTime,
+      results: results
+    };
+}
+
+const getCharactersLocationPerEpisode = async () => {
+    const start = Date.now()
+    const hashTableResidents = {}
+    const results = []
+    const allEpisodeItems = await getAllItemsByRoute('episode')
+    const allLocationItems = await getAllItemsByRoute('location')
+    allLocationItems.data.forEach( item => {
+        item.residents.forEach( resident => {
+            hashTableResidents[resident] = item.name
+        })
+    })
+    console.log('hola')
+    allEpisodeItems.data.forEach( episode => {
+        const episodeLocations = new Set()
+        episode.characters.forEach(character => {
+            hashTableResidents[character] && episodeLocations.add(hashTableResidents[character])
+        })
+        results.push({
+            name: episode.name,
+            episode: episode.episode,
+            location: [...episodeLocations]
+        })
+    })
+    const end = Date.now()
+    const time = timeFunc.secondsToString(end - start)
+    const inTime = Math.floor((end - start) / 1000) < 3
+    return formatLocationPerEpisode({ time, inTime, results })
+}
+
 module.exports = {
-    getMainResult
+    getMainResult,
+    getCharactersLocationPerEpisode
 }
